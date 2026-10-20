@@ -35,6 +35,11 @@ textarea{min-height:90px}
 .chip.on{background:var(--accent2);border-color:var(--accent2)}
 .chip.ex{font-size:.82rem;color:var(--muted)}
 .chip.q{direction:ltr}
+.external{display:none;align-items:center;flex-wrap:wrap;gap:8px;margin:4px 0 12px;font-size:.85rem;color:var(--muted)}
+.external.on{display:flex}
+.external a{display:inline-flex;align-items:center;gap:6px;text-decoration:none;color:var(--text);background:var(--card2);
+  border-radius:999px;padding:5px 12px;font-weight:700;border:2px solid transparent}
+.external a:hover{border-color:var(--accent)}
 .label{color:var(--muted);font-size:.85rem;margin-top:12px}
 .go{width:100%;margin-top:14px;border:0;border-radius:14px;padding:14px;font:inherit;font-weight:900;font-size:1.15rem;
   color:#1a1300;background:linear-gradient(90deg,var(--accent),#ff9f43);cursor:pointer;transition:.15s}
@@ -124,6 +129,7 @@ footer a{color:var(--muted)}
     </div>
 
     <div class="chips" id="queries"></div>
+    <div class="external" id="external"></div>
     <div class="grid" id="grid"></div>
     <div class="status" id="status"></div>
     <button class="more" id="more">حمّل أكثر ⬇️</button>
@@ -391,6 +397,27 @@ async function localQueries(desc) {
   return queries.slice(0, 5);
 }
 
+// ===== البحث برّا الموقع (روابط فقط، بدون نسخ محتوى) =====
+const PLATFORMS = [
+  ['تيك توك 🎵', q => 'https://www.tiktok.com/search?q=' + encodeURIComponent(q)],
+  ['إكس 𝕏', q => 'https://x.com/search?q=' + encodeURIComponent(q) + '&f=media'],
+  ['بنترست 📌', q => 'https://www.pinterest.com/search/pins/?q=' + encodeURIComponent(q)],
+  ['يوتيوب ▶️', q => 'https://www.youtube.com/results?search_query=' + encodeURIComponent(q)]
+];
+
+function buildExternal(desc) {
+  const box = $('external');
+  const word = matchDict(desc)[0]?.[2];
+  const q = word ? 'رياكشن ' + word : desc.split(/\s+/).slice(0, 6).join(' ');
+  box.innerHTML = '<span>دوّري برّا عن "' + q.replace(/[<>&"]/g, '') + '":</span>';
+  for (const [label, url] of PLATFORMS) {
+    const a = document.createElement('a');
+    a.href = url(q); a.target = '_blank'; a.rel = 'noopener'; a.textContent = label;
+    box.appendChild(a);
+  }
+  box.classList.add('on');
+}
+
 // ===== GIPHY =====
 async function giphy(path, params) {
   const q = new URLSearchParams({ api_key: giphyKey(), rating: RATING, limit: PAGE, ...params });
@@ -433,7 +460,7 @@ async function loadTrending() {
   if (!giphyKey()) { setStatus('أضف مفتاح GIPHY من ⚙️ عشان تبدأ'); return; }
   state.mode = 'trending'; state.busy = true; state.offset = 0;
   $('resultsTitle').textContent = state.arabic ? '🔥 رياكشنات عربية' : '🔥 الرائج الآن';
-  $('captionBox').classList.remove('on'); $('queries').innerHTML = '';
+  $('captionBox').classList.remove('on'); $('queries').innerHTML = ''; $('external').classList.remove('on');
   $('grid').innerHTML = ''; $('more').classList.remove('on');
   loading('نجيب الرائج...');
   try {
@@ -477,6 +504,7 @@ async function search() {
   $('resultsTitle').textContent = '🎯 رياكشنز لموقفك';
   $('grid').innerHTML = ''; $('queries').innerHTML = ''; $('more').classList.remove('on');
   $('captionBox').classList.remove('on');
+  buildExternal(desc);
   $('resultsTitle').scrollIntoView({ behavior: 'smooth', block: 'start' });
   saveRecent(desc);
 
