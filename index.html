@@ -1,0 +1,458 @@
+<!doctype html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>وش الرياكشن؟</title>
+<meta name="description" content="اوصف الموقف بكلامك، والذكاء الاصطناعي يلقى لك الرياكشن المناسب من الميمز المشهورة">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;700;900&display=swap" rel="stylesheet">
+<style>
+:root{
+  --bg:#14101f; --card:#1f1930; --card2:#2a2240; --text:#f4f0ff; --muted:#a99ec4;
+  --accent:#ffcc33; --accent2:#a66bff; --danger:#ff5c7a; --radius:18px;
+}
+*{box-sizing:border-box}
+body{margin:0;font-family:Cairo,system-ui,sans-serif;background:var(--bg);color:var(--text);min-height:100vh;
+  background-image:radial-gradient(circle at 15% 0%,#3b2470 0,transparent 45%),radial-gradient(circle at 100% 30%,#4a3a10 0,transparent 35%)}
+header{display:flex;align-items:center;justify-content:space-between;padding:16px;max-width:900px;margin:auto}
+.logo{display:flex;align-items:center;gap:10px;font-weight:900;font-size:1.4rem}
+.logo span{font-size:1.8rem}
+.logo small{display:block;font-weight:400;font-size:.8rem;color:var(--muted)}
+.icon-btn{background:var(--card2);border:0;color:var(--text);width:44px;height:44px;border-radius:12px;font-size:1.2rem;cursor:pointer}
+main{max-width:900px;margin:auto;padding:0 16px 40px}
+.card{background:var(--card);border-radius:var(--radius);padding:18px;margin-bottom:16px;box-shadow:0 10px 30px #0005}
+h2{margin:0 0 10px;font-size:1.05rem}
+textarea,input[type=text],input[type=password]{width:100%;font:inherit;color:var(--text);background:var(--card2);
+  border:2px solid transparent;border-radius:14px;padding:12px 14px;outline:none;resize:vertical}
+textarea:focus,input:focus{border-color:var(--accent2)}
+textarea{min-height:90px}
+.chips{display:flex;flex-wrap:wrap;gap:8px;margin:10px 0}
+.chip{background:var(--card2);color:var(--text);border:2px solid transparent;border-radius:999px;padding:6px 14px;
+  font:inherit;font-size:.9rem;cursor:pointer;transition:.15s}
+.chip:hover{border-color:var(--accent2)}
+.chip.on{background:var(--accent2);border-color:var(--accent2)}
+.chip.ex{font-size:.82rem;color:var(--muted)}
+.chip.q{direction:ltr}
+.label{color:var(--muted);font-size:.85rem;margin-top:12px}
+.go{width:100%;margin-top:14px;border:0;border-radius:14px;padding:14px;font:inherit;font-weight:900;font-size:1.15rem;
+  color:#1a1300;background:linear-gradient(90deg,var(--accent),#ff9f43);cursor:pointer;transition:.15s}
+.go:hover{transform:translateY(-2px)}
+.go:disabled{opacity:.6;cursor:wait;transform:none}
+.caption{display:none;align-items:center;gap:10px;background:var(--card2);border-radius:14px;padding:10px 14px;margin-bottom:12px}
+.caption.on{display:flex}
+.caption b{flex:1;font-size:1.05rem}
+.caption small{display:block;color:var(--muted);font-weight:400;font-size:.75rem}
+.grid{columns:3 200px;column-gap:10px}
+.gif{break-inside:avoid;margin-bottom:10px;border-radius:12px;overflow:hidden;cursor:pointer;background:var(--card2);
+  position:relative;transition:.15s;display:block;width:100%;border:0;padding:0}
+.gif:hover{transform:scale(1.02);box-shadow:0 0 0 3px var(--accent2)}
+.gif img{width:100%;display:block;min-height:80px}
+.status{color:var(--muted);text-align:center;padding:24px 8px}
+.spin{width:44px;height:44px;margin:0 auto 10px;border-radius:50%;border:5px solid #fff3;border-top-color:var(--accent);animation:s 1s linear infinite}
+@keyframes s{to{transform:rotate(360deg)}}
+.more{display:none;margin:6px auto 0;background:var(--card2);color:var(--text);border:0;border-radius:12px;padding:10px 22px;font:inherit;font-weight:700;cursor:pointer}
+.more.on{display:block}
+.giphy-badge{display:inline-flex;align-items:center;gap:6px;background:#000;color:#fff;border-radius:6px;padding:3px 10px;
+  font-size:.75rem;font-weight:900;letter-spacing:.5px;direction:ltr;text-decoration:none}
+.giphy-badge i{width:10px;height:14px;background:linear-gradient(#00ff99,#00ccff,#9933ff,#ff6666,#fff35c);border-radius:1px}
+.head-row{display:flex;justify-content:space-between;align-items:center;gap:10px;flex-wrap:wrap;margin-bottom:6px}
+.btn{border:0;border-radius:12px;padding:11px 10px;font:inherit;font-weight:700;color:var(--text);background:var(--card2);cursor:pointer}
+.btn:hover{background:#3a2f58}
+.btn.primary{background:var(--accent2)}
+.btn.small{padding:6px 12px;font-size:.85rem}
+.actions{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-top:12px}
+.notice{background:#3a2a05;border:1px solid #6b5212;color:#ffe7a3;border-radius:14px;padding:12px 14px;margin-bottom:16px;font-size:.9rem;display:none}
+.notice.on{display:block}
+.notice button{background:var(--accent);border:0;border-radius:8px;padding:4px 10px;font:inherit;font-weight:700;cursor:pointer;margin-inline-start:6px}
+dialog{border:0;border-radius:var(--radius);background:var(--card);color:var(--text);max-width:480px;width:calc(100% - 32px);padding:20px}
+dialog::backdrop{background:#000c}
+dialog p{color:var(--muted);font-size:.88rem;line-height:1.8;margin:6px 0}
+dialog a{color:var(--accent)}
+dialog label{display:block;font-weight:700;margin:12px 0 6px;font-size:.9rem}
+#preview img{width:100%;border-radius:12px;display:block;background:#000;max-height:60vh;object-fit:contain}
+#previewTitle{color:var(--muted);font-size:.85rem;margin:8px 0 0;direction:ltr;text-align:left}
+.err{color:var(--danger);font-size:.85rem;min-height:1.2em}
+#toast{position:fixed;bottom:20px;left:50%;transform:translateX(-50%) translateY(120px);background:#fff;color:#111;
+  padding:10px 18px;border-radius:12px;font-weight:700;transition:.3s;z-index:99;max-width:calc(100% - 32px);text-align:center}
+#toast.on{transform:translateX(-50%) translateY(0)}
+footer{text-align:center;color:var(--muted);font-size:.8rem;padding:10px 16px 30px;display:flex;flex-direction:column;align-items:center;gap:8px}
+footer a{color:var(--muted)}
+@media (max-width:480px){.logo{font-size:1.2rem}.grid{columns:2}}
+</style>
+</head>
+<body>
+
+<header>
+  <div class="logo"><span>🫠</span><div>وش الرياكشن؟<small>اوصف الموقف.. والذكاء يلقى لك الرياكشن</small></div></div>
+  <button class="icon-btn" id="openSettings" title="الإعدادات" aria-label="الإعدادات">⚙️</button>
+</header>
+
+<main>
+  <div class="notice" id="keyNotice">
+    عشان يشتغل الموقع تحتاج مفتاح GIPHY مجاني.
+    <button id="noticeBtn">أضف المفتاح</button>
+  </div>
+
+  <section class="card">
+    <h2>وش صار؟ ✍️</h2>
+    <textarea id="desc" maxlength="300" placeholder="مثال: لما أحد يقول بس دقيقتين وهو بيطول ساعة"></textarea>
+
+    <div class="label">أمثلة سريعة:</div>
+    <div class="chips" id="examples"></div>
+
+    <div class="label">النوع:</div>
+    <div class="chips" id="types"></div>
+
+    <button class="go" id="go">لقّ لي الرياكشن 🔍</button>
+    <div class="chips" id="recent"></div>
+  </section>
+
+  <section class="card">
+    <div class="head-row">
+      <h2 id="resultsTitle">🔥 الرائج الآن</h2>
+      <a class="giphy-badge" href="https://giphy.com" target="_blank" rel="noopener"><i></i>Powered By GIPHY</a>
+    </div>
+
+    <div class="caption" id="captionBox">
+      <b><small>تعليق مقترح من الذكاء 💬</small><span id="captionText"></span></b>
+      <button class="btn small" id="copyCaption">نسخ</button>
+    </div>
+
+    <div class="chips" id="queries"></div>
+    <div class="grid" id="grid"></div>
+    <div class="status" id="status"></div>
+    <button class="more" id="more">حمّل أكثر ⬇️</button>
+  </section>
+</main>
+
+<footer>
+  <a class="giphy-badge" href="https://giphy.com" target="_blank" rel="noopener"><i></i>Powered By GIPHY</a>
+  <div>الرياكشنز من GIPHY وحقوقها لأصحابها · الكلمات المقترحة من <a href="https://pollinations.ai" target="_blank" rel="noopener">Pollinations.ai</a> · صُنع بـ 💜 بواسطة نرجس العمري</div>
+</footer>
+
+<dialog id="preview">
+  <img id="previewImg" alt="">
+  <div id="previewTitle"></div>
+  <div class="actions">
+    <button class="btn primary" id="shareGif">📤 مشاركة</button>
+    <button class="btn" id="copyLink">🔗 نسخ الرابط</button>
+    <a class="btn" id="openGiphy" target="_blank" rel="noopener" style="text-align:center;text-decoration:none">↗️ GIPHY</a>
+  </div>
+  <div class="actions" style="grid-template-columns:1fr">
+    <button class="btn" id="closePreview">إغلاق</button>
+  </div>
+</dialog>
+
+<dialog id="settings">
+  <h2>⚙️ الإعدادات</h2>
+
+  <label for="giphyKey">مفتاح GIPHY (مطلوب)</label>
+  <p>سوّ حساب في <a href="https://developers.giphy.com/dashboard/" target="_blank" rel="noopener">GIPHY Developers</a> ← Create an App ← API ← وانسخ المفتاح. مجاني (100 بحث بالساعة).</p>
+  <input type="password" id="giphyKey" autocomplete="off" dir="ltr" placeholder="GIPHY API Key">
+
+  <label for="polliKey">مفتاح الذكاء Pollinations (اختياري، يبدأ بـ pk_)</label>
+  <p>يخلي الذكاء يفهم وصفك بالعامية ويقترح كلمات بحث وتعليق. بدونه يبحث بكلامك مباشرة. خذه من <a href="https://enter.pollinations.ai/keys" target="_blank" rel="noopener">enter.pollinations.ai</a> وحط له حد ميزانية.</p>
+  <input type="password" id="polliKey" autocomplete="off" dir="ltr" placeholder="pk_...">
+
+  <p>المفاتيح تنحفظ في متصفحك فقط.</p>
+  <div class="err" id="keyErr"></div>
+  <div class="actions" style="grid-template-columns:1fr 1fr">
+    <button class="btn" id="closeSettings">إلغاء</button>
+    <button class="btn primary" id="saveKeys">حفظ</button>
+  </div>
+</dialog>
+
+<div id="toast"></div>
+
+<script>
+// ===== الإعدادات =====
+const GIPHY = 'https://api.giphy.com/v1';
+const POLLI = 'https://gen.pollinations.ai';
+// تقدرين تحطين مفاتيحك هنا عشان الزوار ما يحتاجون إعدادات (لا تحطين مفتاح sk_ أبداً)
+const DEFAULT_GIPHY_KEY = '';
+const DEFAULT_POLLI_KEY = '';
+const PAGE = 24;
+const RATING = 'pg-13';
+
+const TYPES = { gifs: 'رياكشن GIF', stickers: 'ستكرز' };
+const EXAMPLES = [
+  'لما أحد يقول بس دقيقتين وهو بيطول ساعة',
+  'لما المدير يقول عندنا اجتماع يوم الخميس',
+  'أنا لما الراتب نزل وبعد يومين خلص',
+  'لما الكود يشتغل من أول مرة',
+  'وجهي لما أمي تقول عندنا ضيوف بعد ساعة'
+];
+
+// ===== أدوات =====
+const $ = id => document.getElementById(id);
+const store = {
+  get(k, d) { try { const v = localStorage.getItem(k); return v === null ? d : JSON.parse(v); } catch { return d; } },
+  set(k, v) { try { localStorage.setItem(k, JSON.stringify(v)); } catch {} }
+};
+const giphyKey = () => store.get('giphyKey', '') || DEFAULT_GIPHY_KEY;
+const polliKey = () => store.get('pk', '') || DEFAULT_POLLI_KEY;
+
+const state = { type: 'gifs', queries: [], active: 0, lang: 'en', offset: 0, total: 0, busy: false, current: null, mode: 'trending' };
+
+let toastTimer;
+function toast(msg) {
+  const t = $('toast'); t.textContent = msg; t.classList.add('on');
+  clearTimeout(toastTimer); toastTimer = setTimeout(() => t.classList.remove('on'), 3000);
+}
+async function copy(text) {
+  try { await navigator.clipboard.writeText(text); }
+  catch {
+    const ta = document.createElement('textarea'); ta.value = text; document.body.appendChild(ta);
+    ta.select(); document.execCommand('copy'); ta.remove();
+  }
+  toast('انسخ ✅');
+}
+function setStatus(html) { $('status').innerHTML = html; }
+function loading(text) { setStatus(`<div class="spin"></div>${text}`); }
+function refreshNotice() { $('keyNotice').classList.toggle('on', !giphyKey()); }
+
+// ===== الواجهة =====
+function buildTypes() {
+  $('types').innerHTML = '';
+  for (const [id, label] of Object.entries(TYPES)) {
+    const b = document.createElement('button');
+    b.className = 'chip' + (id === state.type ? ' on' : ''); b.textContent = label;
+    b.onclick = () => {
+      if (state.busy || state.type === id) return;
+      state.type = id; buildTypes();
+      if (state.mode === 'search' && state.queries.length) runQuery(state.active);
+      else loadTrending();
+    };
+    $('types').appendChild(b);
+  }
+}
+function buildExamples() {
+  for (const ex of EXAMPLES) {
+    const b = document.createElement('button');
+    b.className = 'chip ex'; b.textContent = ex;
+    b.onclick = () => { $('desc').value = ex; search(); };
+    $('examples').appendChild(b);
+  }
+}
+function buildRecent() {
+  const list = store.get('recent', []);
+  $('recent').innerHTML = '';
+  if (!list.length) return;
+  const l = document.createElement('span'); l.className = 'label'; l.style.margin = '0'; l.textContent = 'آخر بحث:';
+  $('recent').appendChild(l);
+  for (const r of list) {
+    const b = document.createElement('button'); b.className = 'chip ex'; b.textContent = '🕘 ' + r;
+    b.onclick = () => { $('desc').value = r; search(); };
+    $('recent').appendChild(b);
+  }
+}
+function saveRecent(desc) {
+  const list = [desc, ...store.get('recent', []).filter(r => r !== desc)].slice(0, 5);
+  store.set('recent', list); buildRecent();
+}
+function buildQueryChips() {
+  $('queries').innerHTML = '';
+  if (state.queries.length < 2) return;
+  state.queries.forEach((q, i) => {
+    const b = document.createElement('button');
+    b.className = 'chip q' + (i === state.active ? ' on' : ''); b.textContent = q;
+    b.onclick = () => { if (!state.busy && i !== state.active) runQuery(i); };
+    $('queries').appendChild(b);
+  });
+}
+
+// ===== الذكاء =====
+async function askAI(desc) {
+  const system =
+`You help people find the perfect reaction GIF on GIPHY for a situation they describe in Arabic (often Saudi dialect).
+Reply ONLY with JSON: {"queries": ["...", "...", "...", "..."], "caption": "..."}
+- queries: 4 different short English GIPHY search queries (1-3 words each) that capture the emotion or reaction someone would feel, e.g. "shocked", "awkward smile", "facepalm", "slow clap", "crying laughing". Prefer well-known reaction phrases. No real people's names.
+- caption: a short funny caption in the same Arabic dialect the user wrote in (max 10 words), to post with the GIF.`;
+  const res = await fetch(POLLI + '/v1/chat/completions', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json', Authorization: 'Bearer ' + polliKey() },
+    body: JSON.stringify({
+      model: 'openai',
+      messages: [{ role: 'system', content: system }, { role: 'user', content: desc }],
+      response_format: { type: 'json_object' }
+    })
+  });
+  if (!res.ok) throw new Error('AI ' + res.status);
+  const json = await res.json();
+  let text = json.choices?.[0]?.message?.content || '';
+  text = text.slice(text.indexOf('{'), text.lastIndexOf('}') + 1);
+  const data = JSON.parse(text);
+  const queries = (Array.isArray(data.queries) ? data.queries : [])
+    .map(q => String(q).trim()).filter(Boolean).slice(0, 5);
+  if (!queries.length) throw new Error('AI empty');
+  return { queries, caption: String(data.caption || '').trim() };
+}
+
+// ===== GIPHY =====
+async function giphy(path, params) {
+  const q = new URLSearchParams({ api_key: giphyKey(), rating: RATING, limit: PAGE, ...params });
+  const res = await fetch(`${GIPHY}/${state.type}/${path}?${q}`);
+  if (res.status === 401 || res.status === 403) throw new Error('KEY');
+  if (res.status === 429) throw new Error('LIMIT');
+  if (!res.ok) throw new Error('HTTP ' + res.status);
+  return res.json();
+}
+
+function handleError(e) {
+  if (e.message === 'KEY') { setStatus('مفتاح GIPHY غير صحيح 🔑'); openSettings('تأكد من مفتاح GIPHY'); }
+  else if (e.message === 'LIMIT') setStatus('خلصت عمليات البحث المجانية لهالساعة ⏳ جرّب بعد شوي');
+  else setStatus('صار خطأ بالاتصال 😕 جرّب مرة ثانية');
+}
+
+function renderGifs(items, append) {
+  const grid = $('grid');
+  if (!append) grid.innerHTML = '';
+  for (const it of items) {
+    const im = it.images || {};
+    const small = im.fixed_width || im.fixed_height || im.downsized || im.original;
+    if (!small) continue;
+    const b = document.createElement('button'); b.className = 'gif'; b.title = it.title || '';
+    const img = document.createElement('img');
+    img.loading = 'lazy'; img.alt = it.title || 'GIF';
+    img.src = small.webp || small.url;
+    if (small.width && small.height) { img.width = small.width; img.height = small.height; img.style.height = 'auto'; }
+    b.appendChild(img);
+    b.onclick = () => openPreview(it);
+    grid.appendChild(b);
+  }
+}
+
+async function loadTrending() {
+  if (!giphyKey()) { setStatus('أضف مفتاح GIPHY من ⚙️ عشان تبدأ'); return; }
+  state.mode = 'trending'; state.busy = true; state.offset = 0;
+  $('resultsTitle').textContent = '🔥 الرائج الآن';
+  $('captionBox').classList.remove('on'); $('queries').innerHTML = '';
+  $('grid').innerHTML = ''; $('more').classList.remove('on');
+  loading('نجيب الرائج...');
+  try {
+    const r = await giphy('trending', { offset: 0 });
+    renderGifs(r.data, false);
+    state.offset = r.data.length; state.total = r.pagination?.total_count || 0;
+    setStatus(r.data.length ? '' : 'ما فيه نتائج');
+    $('more').classList.toggle('on', r.data.length === PAGE);
+  } catch (e) { handleError(e); }
+  state.busy = false;
+}
+
+async function runQuery(i, append = false) {
+  state.active = i; state.busy = true; $('go').disabled = true;
+  if (!append) { state.offset = 0; $('grid').innerHTML = ''; $('more').classList.remove('on'); loading('ندوّر على أحلى رياكشن... 🔍'); }
+  buildQueryChips();
+  try {
+    const params = { q: state.queries[i], offset: state.offset };
+    if (state.lang !== 'en') params.lang = state.lang;
+    const r = await giphy('search', params);
+    renderGifs(r.data, append);
+    state.offset += r.data.length;
+    state.total = r.pagination?.total_count || 0;
+    setStatus(!append && !r.data.length ? 'ما لقيت شي 😅 جرّب وصف ثاني أو كلمة ثانية' : '');
+    $('more').classList.toggle('on', r.data.length === PAGE && state.offset < state.total);
+  } catch (e) { handleError(e); }
+  state.busy = false; $('go').disabled = false;
+}
+
+async function search() {
+  if (state.busy) return;
+  const desc = $('desc').value.trim();
+  if (!desc) { toast('اكتب وش صار أول 😅'); $('desc').focus(); return; }
+  if (!giphyKey()) { openSettings(); return; }
+
+  state.mode = 'search'; state.busy = true; $('go').disabled = true;
+  $('resultsTitle').textContent = '🎯 رياكشنز لموقفك';
+  $('grid').innerHTML = ''; $('queries').innerHTML = ''; $('more').classList.remove('on');
+  $('captionBox').classList.remove('on');
+  $('resultsTitle').scrollIntoView({ behavior: 'smooth', block: 'start' });
+  saveRecent(desc);
+
+  let ai = null;
+  if (polliKey()) {
+    loading('الذكاء يفهم الموقف... 🤔');
+    try { ai = await askAI(desc); } catch { toast('الذكاء ما رد، بحثت بكلامك مباشرة'); }
+  }
+  if (ai) {
+    state.queries = ai.queries; state.lang = 'en';
+    if (ai.caption) { $('captionText').textContent = ai.caption; $('captionBox').classList.add('on'); }
+  } else {
+    state.queries = [desc]; state.lang = /[؀-ۿ]/.test(desc) ? 'ar' : 'en';
+  }
+  await runQuery(0);
+}
+
+async function loadMore() {
+  if (state.busy) return;
+  if (state.mode === 'search') return runQuery(state.active, true);
+  state.busy = true;
+  try {
+    const r = await giphy('trending', { offset: state.offset });
+    renderGifs(r.data, true); state.offset += r.data.length;
+    $('more').classList.toggle('on', r.data.length === PAGE);
+  } catch (e) { handleError(e); }
+  state.busy = false;
+}
+
+// ===== المعاينة =====
+function openPreview(it) {
+  state.current = it;
+  const im = it.images || {};
+  const big = im.downsized_medium || im.original || im.fixed_height;
+  $('previewImg').src = big.webp || big.url;
+  $('previewImg').alt = it.title || 'GIF';
+  $('previewTitle').textContent = it.title || '';
+  $('openGiphy').href = it.url;
+  $('preview').showModal();
+}
+async function shareGif() {
+  const it = state.current; if (!it) return;
+  const caption = $('captionBox').classList.contains('on') ? $('captionText').textContent : '';
+  if (navigator.share) {
+    try { await navigator.share({ title: it.title || 'GIF', text: caption, url: it.url }); }
+    catch (e) { if (e.name !== 'AbortError') copy(it.url); }
+  } else copy((caption ? caption + '\n' : '') + it.url);
+}
+
+// ===== الإعدادات =====
+function openSettings(err) {
+  $('giphyKey').value = store.get('giphyKey', '');
+  $('polliKey').value = store.get('pk', '');
+  $('keyErr').textContent = err || '';
+  $('settings').showModal();
+}
+function saveKeys() {
+  const g = $('giphyKey').value.trim(), p = $('polliKey').value.trim();
+  if (p.startsWith('sk_')) { $('keyErr').textContent = 'هذا مفتاح سري (sk_)! استخدم مفتاح عام يبدأ بـ pk_'; return; }
+  if (p && !p.startsWith('pk_')) { $('keyErr').textContent = 'مفتاح Pollinations لازم يبدأ بـ pk_'; return; }
+  const hadKey = !!giphyKey();
+  store.set('giphyKey', g); store.set('pk', p);
+  $('settings').close(); refreshNotice(); toast('انحفظت الإعدادات ✅');
+  if (!hadKey && giphyKey()) loadTrending();
+}
+
+// ===== التشغيل =====
+$('go').onclick = search;
+$('desc').addEventListener('keydown', e => { if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); search(); } });
+$('more').onclick = loadMore;
+$('copyCaption').onclick = () => copy($('captionText').textContent);
+$('shareGif').onclick = shareGif;
+$('copyLink').onclick = () => state.current && copy(state.current.url);
+$('closePreview').onclick = () => $('preview').close();
+$('preview').addEventListener('click', e => { if (e.target === $('preview')) $('preview').close(); });
+$('openSettings').onclick = () => openSettings();
+$('noticeBtn').onclick = () => openSettings();
+$('closeSettings').onclick = () => $('settings').close();
+$('saveKeys').onclick = saveKeys;
+
+buildTypes();
+buildExamples();
+buildRecent();
+refreshNotice();
+loadTrending();
+</script>
+</body>
+</html>
