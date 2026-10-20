@@ -102,6 +102,9 @@ footer a{color:var(--muted)}
     <div class="label">أمثلة سريعة:</div>
     <div class="chips" id="examples"></div>
 
+    <div class="label">المصدر:</div>
+    <div class="chips" id="sources"></div>
+
     <div class="label">النوع:</div>
     <div class="chips" id="types"></div>
 
@@ -194,7 +197,7 @@ const store = {
 const giphyKey = () => store.get('giphyKey', '') || DEFAULT_GIPHY_KEY;
 const polliKey = () => store.get('pk', '') || DEFAULT_POLLI_KEY;
 
-const state = { type: 'gifs', queries: [], active: 0, lang: 'en', offset: 0, total: 0, busy: false, current: null, mode: 'trending' };
+const state = { type: 'gifs', arabic: store.get('arabic', true), queries: [], active: 0, offset: 0, total: 0, busy: false, current: null, mode: 'trending' };
 
 let toastTimer;
 function toast(msg) {
@@ -214,6 +217,21 @@ function loading(text) { setStatus(`<div class="spin"></div>${text}`); }
 function refreshNotice() { $('keyNotice').classList.toggle('on', !giphyKey()); }
 
 // ===== الواجهة =====
+function buildSources() {
+  $('sources').innerHTML = '';
+  for (const [val, label] of [[true, 'عربي 🇸🇦'], [false, 'عالمي 🌍']]) {
+    const b = document.createElement('button');
+    b.className = 'chip' + (state.arabic === val ? ' on' : ''); b.textContent = label;
+    b.onclick = () => {
+      if (state.busy || state.arabic === val) return;
+      state.arabic = val; store.set('arabic', val); buildSources();
+      if (state.mode === 'search' && $('desc').value.trim()) search();
+      else loadTrending();
+    };
+    $('sources').appendChild(b);
+  }
+}
+
 function buildTypes() {
   $('types').innerHTML = '';
   for (const [id, label] of Object.entries(TYPES)) {
@@ -293,36 +311,36 @@ Reply ONLY with JSON: {"queries": ["...", "...", "...", "..."], "caption": "..."
 // ===== فهم العربي بدون مفتاح =====
 // كلمات عامية ← كلمات بحث إنجليزية يفهمها GIPHY
 const DICT = [
-  ['اجتماع|ميتنق|ميتنج|meeting', ['boring meeting', 'please no']],
-  ['مدير|المدير|بوس|مديري', ['boss', 'office']],
-  ['راتب|فلوس|رصيد|مفلس|طفران|مصروف|الراتب', ['broke', 'money gone']],
-  ['ضيوف|زوار|زواره', ['panic', 'cleaning fast']],
-  ['دقيقتين|دقيقه|انتظر|انتظار|تاخر|يطول|بيطول|استنى|ساعه', ['still waiting', 'waiting']],
-  ['كود|برمج|البرمجه|بق|ايرور|error|خطا', ['programmer', 'coding']],
-  ['يشتغل|اشتغل|نجح|نجحت|زبط|ضبط|فزت|فاز', ['it works', 'celebrate', 'success']],
-  ['صدم|مصدوم|انصدم|معقول|صدمه|مو معقول', ['shocked', 'what']],
-  ['ضحك|هههه|يضحك|مضحك|اضحك|مت ضحك', ['laughing', 'lol']],
-  ['زعل|زعلان|حزين|بكي|ابكي|ينبكي|بكيت|ضيقه', ['sad', 'crying']],
-  ['عصب|معصب|زهق|قهر|نرفز|ينرفز|يقهر|اعصب', ['angry', 'frustrated']],
-  ['تعبان|تعب|نعس|نعسان|نوم|انام|سهران|سهر', ['tired', 'sleepy']],
-  ['جوع|جوعان|جعت|اكل|غدا|عشا|فطور', ['hungry', 'food']],
-  ['دوام|شغل|الدوام|عمل', ['work', 'office life']],
-  ['اختبار|امتحان|مذاكره|دراسه|اذاكر|الجامعه|المدرسه', ['exam', 'studying']],
-  ['حب|احب|يحب|رومانس', ['love', 'heart']],
-  ['ملل|طفش|مليت|طفشان|ممل', ['bored', 'boring']],
-  ['خوف|خايف|رعب|يخوف', ['scared', 'nervous']],
-  ['احراج|محرج|فشله|انحرجت|موقف بايخ', ['awkward', 'embarrassed']],
-  ['فرح|مبسوط|وناسه|رقص|ارقص|متحمس|حماس', ['happy dance', 'excited']],
-  ['مستحيل|ابد|لا لا|رفض|رفضت', ['no', 'nope']],
-  ['موافق|تمام|اكيد|ابشر|ايه', ['yes', 'ok']],
-  ['شكرا|مشكور|يعطيك العافيه', ['thank you']],
-  ['غبي|غباء|ما يفهم|يستهبل', ['facepalm', 'really']],
-  ['يكذب|كذب|كذاب|يتهيا', ['side eye', 'suspicious']],
-  ['امي|ماما|امه|الوالده', ['mom']],
-  ['خميس|ويكند|اجازه|عطله|الجمعه', ['weekend', 'friday']],
-  ['ما ادري|مدري|محتار|حيره', ['confused', 'shrug']],
-  ['سفر|مسافر|طياره|المطار', ['travel', 'vacation']],
-  ['غريب|عجيب|ايش هذا|وش هذا', ['weird', 'confused']]
+  ['اجتماع|ميتنق|ميتنج|meeting', ['boring meeting', 'please no'], 'اجتماع'],
+  ['مدير|المدير|بوس|مديري', ['boss', 'office'], 'مدير'],
+  ['راتب|فلوس|رصيد|مفلس|طفران|مصروف|الراتب', ['broke', 'money gone'], 'راتب'],
+  ['ضيوف|زوار|زواره', ['panic', 'cleaning fast'], 'ضيوف'],
+  ['دقيقتين|دقيقه|انتظر|انتظار|تاخر|يطول|بيطول|استنى|ساعه', ['still waiting', 'waiting'], 'انتظار'],
+  ['كود|برمج|البرمجه|بق|ايرور|error|خطا', ['programmer', 'coding'], 'مبرمج'],
+  ['يشتغل|اشتغل|نجح|نجحت|زبط|ضبط|فزت|فاز', ['it works', 'celebrate', 'success'], 'نجاح'],
+  ['صدم|مصدوم|انصدم|معقول|صدمه|مو معقول', ['shocked', 'what'], 'صدمة'],
+  ['ضحك|هههه|يضحك|مضحك|اضحك|مت ضحك', ['laughing', 'lol'], 'ضحك'],
+  ['زعل|زعلان|حزين|بكي|ابكي|ينبكي|بكيت|ضيقه', ['sad', 'crying'], 'حزين'],
+  ['عصب|معصب|زهق|قهر|نرفز|ينرفز|يقهر|اعصب', ['angry', 'frustrated'], 'معصب'],
+  ['تعبان|تعب|نعس|نعسان|نوم|انام|سهران|سهر', ['tired', 'sleepy'], 'تعبان'],
+  ['جوع|جوعان|جعت|اكل|غدا|عشا|فطور', ['hungry', 'food'], 'جوعان'],
+  ['دوام|شغل|الدوام|عمل', ['work', 'office life'], 'دوام'],
+  ['اختبار|امتحان|مذاكره|دراسه|اذاكر|الجامعه|المدرسه', ['exam', 'studying'], 'اختبار'],
+  ['حب|احب|يحب|رومانس', ['love', 'heart'], 'حب'],
+  ['ملل|طفش|مليت|طفشان|ممل', ['bored', 'boring'], 'طفش'],
+  ['خوف|خايف|رعب|يخوف', ['scared', 'nervous'], 'خوف'],
+  ['احراج|محرج|فشله|انحرجت|موقف بايخ', ['awkward', 'embarrassed'], 'احراج'],
+  ['فرح|مبسوط|وناسه|رقص|ارقص|متحمس|حماس', ['happy dance', 'excited'], 'وناسة'],
+  ['مستحيل|ابد|لا لا|رفض|رفضت', ['no', 'nope'], 'لا'],
+  ['موافق|تمام|اكيد|ابشر|ايه', ['yes', 'ok'], 'تمام'],
+  ['شكرا|مشكور|يعطيك العافيه', ['thank you'], 'شكرا'],
+  ['غبي|غباء|ما يفهم|يستهبل', ['facepalm', 'really'], 'غبي'],
+  ['يكذب|كذب|كذاب|يتهيا', ['side eye', 'suspicious'], 'كذاب'],
+  ['امي|ماما|امه|الوالده', ['mom'], 'امي'],
+  ['خميس|ويكند|اجازه|عطله|الجمعه', ['weekend', 'friday'], 'خميس'],
+  ['ما ادري|مدري|محتار|حيره', ['confused', 'shrug'], 'مدري'],
+  ['سفر|مسافر|طياره|المطار', ['travel', 'vacation'], 'سفر'],
+  ['غريب|عجيب|ايش هذا|وش هذا', ['weird', 'confused'], 'غريب']
 ];
 
 function normalizeAr(s) {
@@ -342,14 +360,28 @@ async function translate(text) {
   finally { clearTimeout(t); }
 }
 
-async function localQueries(desc) {
+const ARABIC_HOME = 'arabic memes';
+const ARABIC_FALLBACK = ['arabic memes', 'arab reaction', 'khaleeji', 'egyptian meme'];
+
+function matchDict(desc) {
   const norm = normalizeAr(desc);
+  return DICT.filter(([pattern]) => pattern.split('|').some(w => norm.includes(normalizeAr(w))));
+}
+
+function arabicQueries(matches, englishQueries) {
+  const out = [];
+  const add = q => { if (q && !out.includes(q)) out.push(q); };
+  matches.forEach(([, , word]) => add(word));                // بحث بالكلمة العربية
+  englishQueries.slice(0, 3).forEach(q => add('arabic ' + q)); // رياكشنات عربية بنفس الشعور
+  ARABIC_FALLBACK.forEach(add);
+  return out.slice(0, 7);
+}
+
+async function localQueries(desc) {
+  const matches = matchDict(desc);
   const found = [];
-  for (const [pattern, queries] of DICT) {
-    if (pattern.split('|').some(w => norm.includes(normalizeAr(w)))) {
-      for (const q of queries) if (!found.includes(q)) found.push(q);
-    }
-  }
+  for (const [, queries] of matches) for (const q of queries) if (!found.includes(q)) found.push(q);
+  if (state.arabic) return arabicQueries(matches, found);
   const queries = found.slice(0, 4);
   if (/[؀-ۿ]/.test(desc)) {
     const tr = await translate(desc);
@@ -393,15 +425,19 @@ function renderGifs(items, append) {
   }
 }
 
+function homeFeed(offset) {
+  return state.arabic ? giphy('search', { q: ARABIC_HOME, offset }) : giphy('trending', { offset });
+}
+
 async function loadTrending() {
   if (!giphyKey()) { setStatus('أضف مفتاح GIPHY من ⚙️ عشان تبدأ'); return; }
   state.mode = 'trending'; state.busy = true; state.offset = 0;
-  $('resultsTitle').textContent = '🔥 الرائج الآن';
+  $('resultsTitle').textContent = state.arabic ? '🔥 رياكشنات عربية' : '🔥 الرائج الآن';
   $('captionBox').classList.remove('on'); $('queries').innerHTML = '';
   $('grid').innerHTML = ''; $('more').classList.remove('on');
   loading('نجيب الرائج...');
   try {
-    const r = await giphy('trending', { offset: 0 });
+    const r = await homeFeed(0);
     renderGifs(r.data, false);
     state.offset = r.data.length; state.total = r.pagination?.total_count || 0;
     setStatus(r.data.length ? '' : 'ما فيه نتائج');
@@ -416,7 +452,7 @@ async function runQuery(i, append = false) {
   buildQueryChips();
   try {
     const params = { q: state.queries[i], offset: state.offset };
-    if (state.lang !== 'en') params.lang = state.lang;
+    if (/[\u0600-\u06FF]/.test(state.queries[i])) params.lang = 'ar';
     const r = await giphy('search', params);
     if (!append && !r.data.length && i + 1 < state.queries.length) {
       state.busy = false;
@@ -450,11 +486,11 @@ async function search() {
     try { ai = await askAI(desc); } catch { toast('الذكاء ما رد، بحثت بكلامك مباشرة'); }
   }
   if (ai) {
-    state.queries = ai.queries; state.lang = 'en';
+    state.queries = state.arabic ? arabicQueries(matchDict(desc), ai.queries) : ai.queries;
     if (ai.caption) { $('captionText').textContent = ai.caption; $('captionBox').classList.add('on'); }
   } else {
     loading('نفهم الموقف... 🤔');
-    state.queries = await localQueries(desc); state.lang = 'en';
+    state.queries = await localQueries(desc);
   }
   await runQuery(0);
 }
@@ -464,7 +500,7 @@ async function loadMore() {
   if (state.mode === 'search') return runQuery(state.active, true);
   state.busy = true;
   try {
-    const r = await giphy('trending', { offset: state.offset });
+    const r = await homeFeed(state.offset);
     renderGifs(r.data, true); state.offset += r.data.length;
     $('more').classList.toggle('on', r.data.length === PAGE);
   } catch (e) { handleError(e); }
@@ -522,6 +558,7 @@ $('noticeBtn').onclick = () => openSettings();
 $('closeSettings').onclick = () => $('settings').close();
 $('saveKeys').onclick = saveKeys;
 
+buildSources();
 buildTypes();
 buildExamples();
 buildRecent();
