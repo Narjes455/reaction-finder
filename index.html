@@ -290,6 +290,75 @@ Reply ONLY with JSON: {"queries": ["...", "...", "...", "..."], "caption": "..."
   return { queries, caption: String(data.caption || '').trim() };
 }
 
+// ===== فهم العربي بدون مفتاح =====
+// كلمات عامية ← كلمات بحث إنجليزية يفهمها GIPHY
+const DICT = [
+  ['اجتماع|ميتنق|ميتنج|meeting', ['boring meeting', 'please no']],
+  ['مدير|المدير|بوس|مديري', ['boss', 'office']],
+  ['راتب|فلوس|رصيد|مفلس|طفران|مصروف|الراتب', ['broke', 'money gone']],
+  ['ضيوف|زوار|زواره', ['panic', 'cleaning fast']],
+  ['دقيقتين|دقيقه|انتظر|انتظار|تاخر|يطول|بيطول|استنى|ساعه', ['still waiting', 'waiting']],
+  ['كود|برمج|البرمجه|بق|ايرور|error|خطا', ['programmer', 'coding']],
+  ['يشتغل|اشتغل|نجح|نجحت|زبط|ضبط|فزت|فاز', ['it works', 'celebrate', 'success']],
+  ['صدم|مصدوم|انصدم|معقول|صدمه|مو معقول', ['shocked', 'what']],
+  ['ضحك|هههه|يضحك|مضحك|اضحك|مت ضحك', ['laughing', 'lol']],
+  ['زعل|زعلان|حزين|بكي|ابكي|ينبكي|بكيت|ضيقه', ['sad', 'crying']],
+  ['عصب|معصب|زهق|قهر|نرفز|ينرفز|يقهر|اعصب', ['angry', 'frustrated']],
+  ['تعبان|تعب|نعس|نعسان|نوم|انام|سهران|سهر', ['tired', 'sleepy']],
+  ['جوع|جوعان|جعت|اكل|غدا|عشا|فطور', ['hungry', 'food']],
+  ['دوام|شغل|الدوام|عمل', ['work', 'office life']],
+  ['اختبار|امتحان|مذاكره|دراسه|اذاكر|الجامعه|المدرسه', ['exam', 'studying']],
+  ['حب|احب|يحب|رومانس', ['love', 'heart']],
+  ['ملل|طفش|مليت|طفشان|ممل', ['bored', 'boring']],
+  ['خوف|خايف|رعب|يخوف', ['scared', 'nervous']],
+  ['احراج|محرج|فشله|انحرجت|موقف بايخ', ['awkward', 'embarrassed']],
+  ['فرح|مبسوط|وناسه|رقص|ارقص|متحمس|حماس', ['happy dance', 'excited']],
+  ['مستحيل|ابد|لا لا|رفض|رفضت', ['no', 'nope']],
+  ['موافق|تمام|اكيد|ابشر|ايه', ['yes', 'ok']],
+  ['شكرا|مشكور|يعطيك العافيه', ['thank you']],
+  ['غبي|غباء|ما يفهم|يستهبل', ['facepalm', 'really']],
+  ['يكذب|كذب|كذاب|يتهيا', ['side eye', 'suspicious']],
+  ['امي|ماما|امه|الوالده', ['mom']],
+  ['خميس|ويكند|اجازه|عطله|الجمعه', ['weekend', 'friday']],
+  ['ما ادري|مدري|محتار|حيره', ['confused', 'shrug']],
+  ['سفر|مسافر|طياره|المطار', ['travel', 'vacation']],
+  ['غريب|عجيب|ايش هذا|وش هذا', ['weird', 'confused']]
+];
+
+function normalizeAr(s) {
+  return s.replace(/[ً-ْـ]/g, '')
+    .replace(/[أإآ]/g, 'ا').replace(/ة/g, 'ه').replace(/ى/g, 'ي')
+    .toLowerCase();
+}
+
+async function translate(text) {
+  const ctrl = new AbortController(); const t = setTimeout(() => ctrl.abort(), 6000);
+  try {
+    const r = await fetch(`https://api.mymemory.translated.net/get?q=${encodeURIComponent(text)}&langpair=ar|en`, { signal: ctrl.signal });
+    const j = await r.json();
+    const out = (j.responseData?.translatedText || '').replace(/[^\w\s']/g, ' ').replace(/\s+/g, ' ').trim();
+    return /[a-z]/i.test(out) ? out.split(' ').slice(0, 6).join(' ') : '';
+  } catch { return ''; }
+  finally { clearTimeout(t); }
+}
+
+async function localQueries(desc) {
+  const norm = normalizeAr(desc);
+  const found = [];
+  for (const [pattern, queries] of DICT) {
+    if (pattern.split('|').some(w => norm.includes(normalizeAr(w)))) {
+      for (const q of queries) if (!found.includes(q)) found.push(q);
+    }
+  }
+  const queries = found.slice(0, 4);
+  if (/[؀-ۿ]/.test(desc)) {
+    const tr = await translate(desc);
+    if (tr && !queries.includes(tr)) queries.push(tr);
+  } else if (!queries.includes(desc)) queries.unshift(desc);
+  if (!queries.length) queries.push('reaction', 'what', 'lol');
+  return queries.slice(0, 5);
+}
+
 // ===== GIPHY =====
 async function giphy(path, params) {
   const q = new URLSearchParams({ api_key: giphyKey(), rating: RATING, limit: PAGE, ...params });
@@ -349,6 +418,10 @@ async function runQuery(i, append = false) {
     const params = { q: state.queries[i], offset: state.offset };
     if (state.lang !== 'en') params.lang = state.lang;
     const r = await giphy('search', params);
+    if (!append && !r.data.length && i + 1 < state.queries.length) {
+      state.busy = false;
+      return runQuery(i + 1);
+    }
     renderGifs(r.data, append);
     state.offset += r.data.length;
     state.total = r.pagination?.total_count || 0;
@@ -380,7 +453,8 @@ async function search() {
     state.queries = ai.queries; state.lang = 'en';
     if (ai.caption) { $('captionText').textContent = ai.caption; $('captionBox').classList.add('on'); }
   } else {
-    state.queries = [desc]; state.lang = /[؀-ۿ]/.test(desc) ? 'ar' : 'en';
+    loading('نفهم الموقف... 🤔');
+    state.queries = await localQueries(desc); state.lang = 'en';
   }
   await runQuery(0);
 }
